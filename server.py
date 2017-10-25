@@ -1,5 +1,5 @@
 from xmlrpc.client import ServerProxy, Fault
-from os.path import isfile
+from os.path import isfile, join
 from xmlrpc.server import SimpleXMLRPCServer
 from utils import inside, getPort
 import sys
@@ -32,7 +32,7 @@ class Node:
     """
     A node in a peer-to-peer network.
     """
-    
+
     def __init__(self, url, dirname, secret):
         self.url = url
         self.dirname = dirname
@@ -56,9 +56,8 @@ class Node:
             raise AccessDenied
 
         result = self.query(query)
-        f = open(join(self.dirname, query), 'w')
-        f.write(result)
-        f.close()
+        with open(join(self.dirname, query), 'w') as f:
+            f.write(result)
         return 0
 
     def _start(self):

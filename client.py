@@ -25,9 +25,10 @@ class Client(Cmd):
         t.start()
         sleep(HEAD_START)
         self.server = ServerProxy(url)
-        for line in open(urlfile):
-            line = line.strip()
-            self.server.hello(line)
+        with open(urlfile) as input:      
+            for line in input:
+                line = line.strip()
+                self.server.hello(line)
 
     def do_fetch(self, arg):
         try:
