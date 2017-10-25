@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from random import choice
 from string import ascii_lowercase
 
+
 def inside(dir, name):
     """
     Checks whenever a given file name lies within a folder.
@@ -11,6 +12,7 @@ def inside(dir, name):
     name = abspath(name)
     return name.startswith(join(dir, ''))
 
+
 def getPort(url):
     """
     Extracts the port from a url.
@@ -18,6 +20,7 @@ def getPort(url):
     name = urlparse(url)[1]
     parts = name.split(':')
     return int(parts[-1])
+
 
 def randomString(length):
     """

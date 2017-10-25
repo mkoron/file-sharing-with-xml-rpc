@@ -11,6 +11,7 @@ MAX_HISTORY_LENGTH = 6
 UNHANDLED = 100
 ACCES_DENIED = 200
 
+
 class UnhandledQuery(Fault):
     """
     An exception that represents an unhandled query.
@@ -18,6 +19,7 @@ class UnhandledQuery(Fault):
 
     def __init__(self, message="Couldn't handle the query"):
         super().__init__(UNHANDLED, message)
+
 
 class AccessDenied(Fault):
     """
@@ -27,6 +29,7 @@ class AccessDenied(Fault):
 
     def __init__(self, message="Access denied"):
         super().__init__(ACCES_DENIED, message)
+
 
 class Node:
     """
@@ -44,7 +47,8 @@ class Node:
             return self._handle(query)
         except UnhandledQuery:
             history = history + [self.url]
-            if len(history) >= MAX_HISTORY_LENGTH: raise
+            if len(history) >= MAX_HISTORY_LENGTH:
+                raise
             return self._broadcast(query, history)
 
     def hello(self, other):
@@ -52,7 +56,7 @@ class Node:
         return 0
 
     def fetch(self, query, secret):
-        if secret != self.secret: 
+        if secret != self.secret:
             raise AccessDenied
 
         result = self.query(query)
@@ -68,7 +72,7 @@ class Node:
     def _handle(self, query):
         dir = self.dirname
         name = join(dir, query)
-        if not isfile(name): 
+        if not isfile(name):
             raise UnhandledQuery
         if not inside(dir, name):
             raise AccessDenied
@@ -77,20 +81,24 @@ class Node:
 
     def _broadcast(self, query, history):
         for other in self.known.copy():
-            if other in history: continue
+            if other in history:
+                continue
             try:
                 s = ServerProxy(other)
                 return s.query(query, history)
             except Fault as f:
-                if f.faultCode == UNHANDLED: pass
+                if f.faultCode == UNHANDLED:
+                    pass
                 else:
                     self.known.remove(other)
         raise UnhandledQuery
-        
+
+
 def main():
     url, directoty, secret = sys.argv[1:]
     n = Node(url, directoty, secret)
     n._start()
+
 
 if __name__ == '__main__':
     main()

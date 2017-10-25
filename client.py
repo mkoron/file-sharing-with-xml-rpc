@@ -1,3 +1,13 @@
+"""
+This is a simple peer-to-peer file sharing program.
+
+Example:
+
+    You can use the program as following:
+
+        python client.py urls.txt directory http://server.name:{portNumber}
+"""
+
 from xmlrpc.client import ServerProxy, Fault
 from cmd import Cmd
 from server import Node, UNHANDLED
@@ -25,7 +35,7 @@ class Client(Cmd):
         t.start()
         sleep(HEAD_START)
         self.server = ServerProxy(url)
-        with open(urlfile) as input:      
+        with open(urlfile) as input:
             for line in input:
                 line = line.strip()
                 self.server.hello(line)
@@ -34,17 +44,20 @@ class Client(Cmd):
         try:
             self.server.fetch(arg, self.secret)
         except Fault as f:
-            if f.faultCode != UNHANDLED: raise
+            if f.faultCode != UNHANDLED:
+                raise
             print("Couldn't find the file ", arg)
 
     def do_exit(self, arg):
         print("Exiting program...")
         sys.exit()
 
+
 def main():
     urlfile, directory, url = sys.argv[1:]
     client = Client(url, directory, urlfile)
     client.cmdloop()
+
 
 if __name__ == '__main__':
     main()
