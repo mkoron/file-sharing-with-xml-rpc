@@ -1,7 +1,7 @@
 from xmlrpc.client import ServerProxy, Fault
-from os.path import join, abspath, isfile
+from os.path import isfile
 from xmlrpc.server import SimpleXMLRPCServer
-from urllib.parse import urlparse
+from utils import inside, getPort
 import sys
 
 SimpleXMLRPCServer.allow_reuse_address = 1
@@ -12,25 +12,27 @@ UNHANDLED = 100
 ACCES_DENIED = 200
 
 class UnhandledQuery(Fault):
+    """
+    An exception that represents an unhandled query.
+    """
+
     def __init__(self, message="Couldn't handle the query"):
         super().__init__(UNHANDLED, message)
 
 class AccessDenied(Fault):
+    """
+    An exception that is raised if a user tries to access a resource
+    for which is not authorized.
+    """
+
     def __init__(self, message="Access denied"):
         super().__init__(ACCES_DENIED, message)
 
-def inside(dir, name):
-    dir = abspath(dir)
-    name = abspath(name)
-    return name.startswith(join(dir, ''))
-
-def getPort(url):
-    name = urlparse(url)[1]
-    parts = name.split(':')
-    return int(parts[-1])
-
-
 class Node:
+    """
+    A node in a peer-to-peer network.
+    """
+    
     def __init__(self, url, dirname, secret):
         self.url = url
         self.dirname = dirname
@@ -54,12 +56,10 @@ class Node:
             raise AccessDenied
 
         result = self.query(query)
-        code, data = self.query(query)
-        if code == OK:
-            f = open(join(self.dirname, query), 'w')
-            f.write(data)
-            f.close()
-            return 0
+        f = open(join(self.dirname, query), 'w')
+        f.write(result)
+        f.close()
+        return 0
 
     def _start(self):
         s = SimpleXMLRPCServer(('', getPort(self.url)), logRequests=False)
